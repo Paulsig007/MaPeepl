@@ -1,5 +1,6 @@
 const inquirer = require("inquirer");
 const mysql = require("mysql2");
+const util = require("util");
 
 const db = mysql.createConnection(
   {
@@ -11,10 +12,12 @@ const db = mysql.createConnection(
   console.log(`Connected to the classlist_db database.`)
 );
 
+const query = util.promisify(db.query).bind(db);
+
 const initQuestion = [
   {
     type: "list",
-    name: "mapeeplChoices",
+    name: "choice",
     message: "What would you like to do?:",
     choices: [
       "View All Employees",
@@ -29,7 +32,7 @@ const initQuestion = [
   },
 ];
 
-const addEmployee = [
+const addEmployee = (roles, managers) => [
   {
     type: "input",
     name: "firstName",
@@ -44,50 +47,33 @@ const addEmployee = [
     type: "list",
     name: "employeeRole",
     message: "What is the employee's role? ",
-    choices: [
-      "Sales Lead",
-      "Salesperson",
-      "Lead Engineer",
-      "Software Engineer",
-      "Account Manager",
-      "Accountant",
-      "Legal Team Lead",
-      "Lawyer",
-    ],
+    choices: roles,
+    // will need to be dynamic
   },
   {
     type: "list",
     name: "employeeManager",
     message: "Who is the employee's manager? ",
-    choices: [
-      "Mike Lithgen",
-      "Fteven Cane",
-      "Dr. Kenneth Noisewater",
-      "Sir Allen McNab",
-      "Leroy Jenkins",
-      "Crentist The Dentist",
-      "Keyser Soze",
-      "Rose Bud",
-    ],
+    choices: managers,
   },
 ];
 
-const addRole = [
+const addRole = (depts) => [
   {
     type: "input",
     name: "roleName",
     message: "What is the name of the role? ",
   },
   {
-    type: "list",
+    type: "input",
     name: "roleSalary",
     message: "What is the salary of the role? ",
   },
   {
-    type: "input",
+    type: "list",
     name: "roleDepartment",
     message: "What department does the role belong to? ",
-    choices: ["Sales", "Engineering", "Finance", "Legal"],
+    choices: depts,
   },
 ];
 
@@ -120,15 +106,63 @@ async function init() {
   }
 }
 
-async function viewEmpFunc() {}
+async function viewEmpFunc() {
+  const response = await query("SELECT * FROM Employees");
+  // select id
+  console.table(response);
+  await init();
+}
 
 async function addEmpFunc() {
-  const answers = await inquirer.prompt(addEmployee);
+  const roles = await query("SELECT id AS value, title AS name FROM Roles");
+  const managers = await query(
+    "SELECT id AS value, CONCAT(first_name, last_name) AS name FROM Employees"
+  );
+  const answers = await inquirer.prompt(addEmployee(roles, managers));
+  console.log(answers.firstName);
+  await query(
+    "INSERT INTO Employees (first_name, last_name, role_id, manager_id) VALUES(?, ?, ?, ?)",
+    [
+      answers.firstName,
+      answers.lastName,
+      answers.employeeRole,
+      answers.employeeManager,
+    ]
+  );
+  await init();
+}
+
+async function updateRoleFunc() {
+  const roles = await query("SELECT id AS value, title AS name FROM Roles");
+  const managers = await query(
+    "SELECT id AS value, CONCAT(first_name, last_name) AS name FROM Employees"
+  );
+  const answers = await inquirer.prompt(addEmployee(roles, managers));
+  // await query(
+  //   `INSERT INTO Employees (first_name, last_name, role_id, manager_id) VALUES(${answers.values})`
+  // );
+  console.log(answers.values);
+  await init();
+}
+
+async function viewRoleFunc() {
+  const response = await query("SELECT * FROM Roles");
+  console.table(response);
   await init();
 }
 
 async function addRoleFunc() {
-  const answers = await inquirer.prompt(addRole);
+  const depts = await query(
+    "SELECT id AS value, dep_name AS name FROM Departments"
+  );
+  const answers = await inquirer.prompt(addRole(depts));
+  console.log(answers);
+  await init();
+}
+
+async function viewDeptFunc() {
+  const response = await query("SELECT * FROM Departments");
+  console.table(response);
   await init();
 }
 
