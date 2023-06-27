@@ -106,11 +106,14 @@ const addDepartment = [
   },
 ];
 
-async function init() {
+function art() {
   const consoleArt = ascii({
     name: "MaPeepl: an Employee Tracker",
   }).render();
   console.log(consoleArt);
+}
+
+async function init() {
   const answers = await inquirer.prompt(initQuestion);
   if (answers.choice === "View All Employees") {
     await viewEmpFunc();
@@ -158,7 +161,6 @@ async function addEmpFunc() {
   await init();
 }
 
-// HELP WITH THIS! UPDATING
 async function updateRoleFunc() {
   const employees = await query(
     "SELECT id AS value, CONCAT(first_name, last_name) AS name FROM Employees"
@@ -168,12 +170,18 @@ async function updateRoleFunc() {
     "SELECT id AS value, CONCAT(first_name, last_name) AS name FROM Employees"
   );
   const answers = await inquirer.prompt(updateRole(employees, roles, managers));
-  // await query("UPDATE Employees SET role_id = ? SET manager_id  )
+  await query("UPDATE Employees SET role_id = ?, manager_id= ? WHERE id = ?", [
+    answers.newRole,
+    answers.newManager,
+    answers.employee,
+  ]);
   await init();
 }
 
 async function viewRoleFunc() {
-  const response = await query("SELECT * FROM Roles");
+  const response = await query(
+    "SELECT Roles.id, Roles.title, Roles.salary, Departments.dep_name FROM Roles LEFT JOIN Departments ON Roles.dep_id = Departments.id"
+  );
   console.table(response);
   await init();
 }
@@ -200,10 +208,15 @@ async function viewDeptFunc() {
 
 async function addDeptFunc() {
   const answers = await inquirer.prompt(addDepartment);
+  await query("INSERT INTO Departments (dep_name) VALUES (?)", [
+    answers.departmentName,
+  ]);
   await init();
 }
 function quit() {
   console.log("Please Come Again!");
   return false;
 }
+
+art();
 init();
