@@ -65,7 +65,7 @@ const addRole = (depts) => [
     message: "What is the name of the role? ",
   },
   {
-    type: "input",
+    type: "number",
     name: "roleSalary",
     message: "What is the salary of the role? ",
   },
@@ -119,7 +119,6 @@ async function addEmpFunc() {
     "SELECT id AS value, CONCAT(first_name, last_name) AS name FROM Employees"
   );
   const answers = await inquirer.prompt(addEmployee(roles, managers));
-  console.log(answers.firstName);
   await query(
     "INSERT INTO Employees (first_name, last_name, role_id, manager_id) VALUES(?, ?, ?, ?)",
     [
@@ -157,6 +156,11 @@ async function addRoleFunc() {
   );
   const answers = await inquirer.prompt(addRole(depts));
   console.log(answers);
+  await query("INSERT INTO Roles (title, salary, dep_id) VALUES(?, ?, ?)", [
+    answers.roleName,
+    answers.roleSalary,
+    answers.roleDepartment,
+  ]);
   await init();
 }
 
