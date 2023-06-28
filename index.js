@@ -134,7 +134,6 @@ async function init() {
   }
 }
 
-// HELP WITH THIS, JOIN TABLES
 async function viewEmpFunc() {
   const response = await query(
     "SELECT Employees.id, CONCAT(Employees.first_name, ' ', Employees.last_name) AS name, Roles.title, Roles.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager, Departments.dep_name FROM Employees LEFT JOIN Roles ON Roles.id = Employees.role_id LEFT JOIN Employees manager ON Employees.manager_id = manager.id LEFT JOIN Departments ON Roles.dep_id = Departments.id "
