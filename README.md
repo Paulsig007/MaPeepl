@@ -4,6 +4,9 @@
 
 ## Description
 
+Walkthrough Video:
+https://drive.google.com/file/d/1g-BxG52HL7SfHJNT_0EnzoKMOFbeCOml/view
+
 This project thoroughly tracks the employees of a given company, including their title, salary, manager and department they belong to. The user is allowed to View all employees, roles, and departments, add new employess, new roles and departments as well as edit the roles of current employees. This project was very satisfying to complete and possibly one of my most organized projects to date.
 
 ## Table of Contents
