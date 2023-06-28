@@ -145,7 +145,7 @@ async function viewEmpFunc() {
 async function addEmpFunc() {
   const roles = await query("SELECT id AS value, title AS name FROM Roles");
   const managers = await query(
-    "SELECT id AS value, CONCAT(first_name, last_name) AS name FROM Employees"
+    "SELECT id AS value, CONCAT(first_name, ' ', last_name) AS name FROM Employees"
   );
   const answers = await inquirer.prompt(addEmployee(roles, managers));
   await query(
@@ -162,11 +162,11 @@ async function addEmpFunc() {
 
 async function updateRoleFunc() {
   const employees = await query(
-    "SELECT id AS value, CONCAT(first_name, last_name) AS name FROM Employees"
+    "SELECT id AS value, CONCAT(first_name, ' ', last_name) AS name FROM Employees"
   );
   const roles = await query("SELECT id AS value, title AS name FROM Roles");
   const managers = await query(
-    "SELECT id AS value, CONCAT(first_name, last_name) AS name FROM Employees"
+    "SELECT id AS value, CONCAT(first_name, ' ', last_name) AS name FROM Employees"
   );
   const answers = await inquirer.prompt(updateRole(employees, roles, managers));
   await query("UPDATE Employees SET role_id = ?, manager_id= ? WHERE id = ?", [
